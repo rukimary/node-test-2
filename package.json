@@ -1,18 +1,19 @@
 {
-  "name": "nodetest",
+  "name": "node-test-2",
   "version": "1.0.0",
-  "description": "��#\u0000 \u0000n\u0000o\u0000d\u0000e\u0000-\u0000t\u0000e\u0000s\u0000t\u0000\r\u0000 \u0000",
+  "description": "second node task",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/rukimary/node-test.git"
+    "url": "https://github.com/rukimary/node-test-2.git"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.7.1",
     "prime-number-check": "^1.0.1"
   }
 }

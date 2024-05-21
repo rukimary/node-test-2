@@ -1,36 +1,73 @@
-const m = 4;
-const n = 89;
+const axios = require("axios");
+const fs = require("fs");
+const path = require("path");
+const http = require("http");
 
-if (false) {
-  const isPrime = require("prime-number-check");
+async function fetchAndWrite() {
+  try {
+    const { data } = await axios.get("https://fakestoreapi.com/products");
 
-  console.log(isPrime(m));
-  console.log(isPrime(n));
-  // Пакет с npmjs, проверяющий простые числа в формате boolean
-}
-
-if (true) {
-  function isPrime(num) {
-    if (num <= 1) return false;
-    if (num <= 3) return true;
-    if (num % 2 === 0 || num % 3 === 0) return false;
-    for (let i = 5; i * i <= num; i += 6) {
-      if (num % i === 0 || num % (i + 2) === 0) return false;
-    }
-    return true;
-  }
-
-  function getPrimesInRange(m, n) {
-    const primes = [];
-    for (let i = m; i <= n; i++) {
-      if (isPrime(i)) {
-        primes.push(i);
+    fs.writeFile(
+      path.resolve(__dirname, "products.json"),
+      JSON.stringify(data),
+      "utf-8",
+      (err) => {
+        if (err) {
+          throw err;
+        }
+        console.log(`Got some products`);
       }
-    }
-    return primes;
+    );
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+fetchAndWrite();
+
+const server = http.createServer((request, response) => {
+  response.setHeader("Content-Type", "text/html; charset=utf-8");
+  if (request.url === "/products") {
+    response.write("Товары!");
+  } else if (request.url === "/cart") {
+    response.write("Корзина!");
   }
 
-  const primes = getPrimesInRange(m, n);
+  response.end();
+});
 
-  console.log(`Простые числа в диапазоне от ${m} до ${n}:`, primes);
-}
+server.listen(3000);
+
+// async function fetchAndWrite() {
+//   try {
+//     const response = await axios.get("https://fakestoreapi.com/products");
+//     const jsonData = JSON.stringify(response.data);
+
+//     fs.writeFileSync("products.json", jsonData);
+
+//     console.log("Products data has been written to file successfully!");
+//   } catch (error) {
+//     console.error("Error fetching products data or writing to file:", error);
+//   }
+// }
+
+// const server = http.createServer((req, res) => {
+//   if (req.url === "/fetch-products-and-save" && req.method === "GET") {
+//     fetchAndWrite()
+//       .then(() => {
+//         res.writeHead(200);
+//         res.end("Products data has been fetched and saved successfully!");
+//       })
+//       .catch((error) => {
+//         res.writeHead(500);
+//         res.end("Error fetching products data or writing to file: " + error);
+//       });
+//   } else {
+//     res.writeHead(404);
+//     res.end("Not found");
+//   }
+// });
+
+// server.listen(3000, () => {
+//   console.log("Server listening on port 3000");
+// });
