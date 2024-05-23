@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const http = require("http");
 
-async function fetchAndWrite() {
+async function fetchProducts() {
   try {
     const { data } = await axios.get("https://fakestoreapi.com/products");
 
@@ -11,63 +11,35 @@ async function fetchAndWrite() {
       path.resolve(__dirname, "products.json"),
       JSON.stringify(data),
       "utf-8",
-      (err) => {
-        if (err) {
-          throw err;
+      (error) => {
+        if (error) {
+          throw error;
         }
-        console.log(`Got some products`);
+        console.log(`Товары!`);
       }
     );
   } catch (error) {
     console.error(error);
+    throw error;
   }
 }
 
-fetchAndWrite();
-
-const server = http.createServer((request, response) => {
-  response.setHeader("Content-Type", "text/html; charset=utf-8");
+const server = http.createServer(async (request, response) => {
   if (request.url === "/products") {
-    response.write("Товары!");
-  } else if (request.url === "/cart") {
-    response.write("Корзина!");
+    try {
+      const products = await fetchProducts();
+      response.writeHead(200, { "Content-Type": "application/json" });
+      response.end(JSON.stringify(products));
+    } catch (error) {
+      response.writeHead(500, { "Content-Type": "text/plain" });
+      response.end("Что-то пошло не так");
+    }
+  } else {
+    response.writeHead(404, { "Content-Type": "text/plain" });
+    response.end("Not found");
   }
-
-  response.end();
 });
 
-server.listen(3000);
-
-// async function fetchAndWrite() {
-//   try {
-//     const response = await axios.get("https://fakestoreapi.com/products");
-//     const jsonData = JSON.stringify(response.data);
-
-//     fs.writeFileSync("products.json", jsonData);
-
-//     console.log("Products data has been written to file successfully!");
-//   } catch (error) {
-//     console.error("Error fetching products data or writing to file:", error);
-//   }
-// }
-
-// const server = http.createServer((req, res) => {
-//   if (req.url === "/fetch-products-and-save" && req.method === "GET") {
-//     fetchAndWrite()
-//       .then(() => {
-//         res.writeHead(200);
-//         res.end("Products data has been fetched and saved successfully!");
-//       })
-//       .catch((error) => {
-//         res.writeHead(500);
-//         res.end("Error fetching products data or writing to file: " + error);
-//       });
-//   } else {
-//     res.writeHead(404);
-//     res.end("Not found");
-//   }
-// });
-
-// server.listen(3000, () => {
-//   console.log("Server listening on port 3000");
-// });
+server.listen(3000, () => {
+  console.log("http://localhost:3000/");
+});
